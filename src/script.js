@@ -16,7 +16,7 @@ const friction = 0.9;
 const ballLifetime = 5000; // Ball lifetime in milliseconds
 
 const square = {
-    x: 350,
+    x: 250,
     y: 120,
     size: 100,
     color: 'blue'
