@@ -6,6 +6,10 @@ function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    // Center the square
+    square.x = (canvas.width - square.size) / 2;
+    square.y = (canvas.height - square.size) / 2;
+
     // Adjust bottomLeftSquare position
     bottomLeftSquare.y = canvas.height - bottomLeftSquare.height;
 }
@@ -16,8 +20,8 @@ const friction = 0.9;
 const ballLifetime = 5000; // Ball lifetime in milliseconds
 
 const square = {
-    x: 250,
-    y: 120,
+    x: 0, // Will be adjusted in resizeCanvas
+    y: 0, // Will be adjusted in resizeCanvas
     size: 100,
     color: 'blue'
 };
