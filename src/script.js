@@ -8,7 +8,7 @@ function resizeCanvas() {
 
     // Center the square
     square.x = (canvas.width - square.size) / 2;
-    square.y = (canvas.height - square.size) / 2;
+    square.y = (canvas.height - square.size) / 4;
 
     // Adjust bottomLeftSquare position
     bottomLeftSquare.y = canvas.height - bottomLeftSquare.height;
@@ -29,8 +29,8 @@ const square = {
 const bottomLeftSquare = {
     x: 0,
     y: 0, // Will be adjusted in resizeCanvas
-    width: 130,
-    height: 120,
+    width: 135*1.5,
+    height: 120*1.5,
     color: 'red'
 };
 
@@ -40,7 +40,7 @@ ballImage.src = 'src/ball.png'; // Make sure to place the ball.png in the same d
 
 // Load the person image
 const personImage = new Image();
-personImage.src = 'src/person.png'; // Make sure to place the person.png in the same directory
+personImage.src = 'src/person-sm.png'; // Make sure to place the person.png in the same directory
 
 // Load the magic hat image
 const magichatImage = new Image();
@@ -57,7 +57,7 @@ class Ball {
     }
 
     draw() {
-        const size = this.radius * 2 * 2.3; // Increased size
+        const size = this.radius * 2 * 2.2*1.5; // Increased size
         ctx.drawImage(ballImage, this.x - size / 2, this.y - size / 2, size, size);
     }
 
