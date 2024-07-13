@@ -3,8 +3,11 @@ const ctx = canvas.getContext('2d');
 
 // Function to resize the canvas
 function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    /* canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight; */
+    canvas.width = canvas.offsetWidth; // 设置画布宽度为其父元素的宽度
+    canvas.height = canvas.offsetWidth * 0.75; // 设置画布高度为宽度的75%，保持4:3的比例
+
 
     // Center the square
     square.x = (canvas.width - square.size) / 2;
@@ -13,6 +16,8 @@ function resizeCanvas() {
     // Adjust bottomLeftSquare position
     bottomLeftSquare.y = canvas.height - bottomLeftSquare.height;
 }
+// 窗口调整事件监听器
+
 
 const balls = [];
 const gravity = 0.5;
@@ -29,6 +34,7 @@ const square = {
 const bottomLeftSquare = {
     x: 0,
     y: 0, // Will be adjusted in resizeCanvas
+    // width: 145*1.5,
     width: 145*1.5,
     height: 120*1.5,
     color: 'red'
@@ -127,12 +133,22 @@ class Ball {
 }
 
 function drawSquare() {
-    // Draw the magic hat image instead of a blue square
-    ctx.drawImage(magichatImage, square.x, square.y, square.size, square.size);
+    // Draw the magic hat image
+    // ctx.drawImage(magichatImage, square.x, square.y, square.size, square.size);
+    const aspectRatio = magichatImage.width / magichatImage.height;
+    const size = square.size;
+    const height = size / aspectRatio;
+    ctx.drawImage(magichatImage, square.x, square.y, size, height);
+
 }
 
 function drawBottomLeftSquare() {
-    ctx.drawImage(personImage, bottomLeftSquare.x, bottomLeftSquare.y, bottomLeftSquare.width, bottomLeftSquare.height);
+    //ctx.drawImage(personImage, bottomLeftSquare.x, bottomLeftSquare.y, bottomLeftSquare.width, bottomLeftSquare.height);
+    const aspectRatio = personImage.width / personImage.height;
+    const width = personImage.width*0.5;
+    const height = personImage.height*0.45;
+    ctx.drawImage(personImage, bottomLeftSquare.x, bottomLeftSquare.y, width, height);
+
 }
 
 function addBall(x, y) {
