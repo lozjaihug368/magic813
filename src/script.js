@@ -3,21 +3,16 @@ const ctx = canvas.getContext('2d');
 
 // Function to resize the canvas
 function resizeCanvas() {
-    /* canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight; */
-    canvas.width = canvas.offsetWidth; // 设置画布宽度为其父元素的宽度
-    canvas.height = canvas.offsetWidth * 0.75; // 设置画布高度为宽度的75%，保持4:3的比例
-
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     // Center the square
     square.x = (canvas.width - square.size) / 2;
-    square.y = (canvas.height - square.size) / 4;
+    square.y = (canvas.height - square.size) / 2;
 
     // Adjust bottomLeftSquare position
     bottomLeftSquare.y = canvas.height - bottomLeftSquare.height;
 }
-// 窗口调整事件监听器
-
 
 const balls = [];
 const gravity = 0.5;
@@ -34,8 +29,7 @@ const square = {
 const bottomLeftSquare = {
     x: 0,
     y: 0, // Will be adjusted in resizeCanvas
-    // width: 145*1.5,
-    width: 145*1.5,
+    width: 130*1.5,
     height: 120*1.5,
     color: 'red'
 };
@@ -46,7 +40,7 @@ ballImage.src = 'src/ball.png'; // Make sure to place the ball.png in the same d
 
 // Load the person image
 const personImage = new Image();
-personImage.src = 'src/person-sm.png'; // Make sure to place the person.png in the same directory
+personImage.src = 'src/person.png'; // Make sure to place the person.png in the same directory
 
 // Load the magic hat image
 const magichatImage = new Image();
@@ -63,7 +57,7 @@ class Ball {
     }
 
     draw() {
-        const size = this.radius * 2 * 2.*1.5; // Increased size
+        const size = this.radius * 2 * 2.3; // Increased size
         ctx.drawImage(ballImage, this.x - size / 2, this.y - size / 2, size, size);
     }
 
@@ -133,22 +127,12 @@ class Ball {
 }
 
 function drawSquare() {
-    // Draw the magic hat image
-    // ctx.drawImage(magichatImage, square.x, square.y, square.size, square.size);
-    const aspectRatio = magichatImage.width / magichatImage.height;
-    const size = square.size;
-    const height = size / aspectRatio;
-    ctx.drawImage(magichatImage, square.x, square.y, size, height);
-
+    // Draw the magic hat image instead of a blue square
+    ctx.drawImage(magichatImage, square.x, square.y, square.size, square.size);
 }
 
 function drawBottomLeftSquare() {
-    //ctx.drawImage(personImage, bottomLeftSquare.x, bottomLeftSquare.y, bottomLeftSquare.width, bottomLeftSquare.height);
-    const aspectRatio = personImage.width / personImage.height;
-    const width = personImage.width*0.5;
-    const height = personImage.height*0.45;
-    ctx.drawImage(personImage, bottomLeftSquare.x, bottomLeftSquare.y, width, height);
-
+    ctx.drawImage(personImage, bottomLeftSquare.x, bottomLeftSquare.y, bottomLeftSquare.width, bottomLeftSquare.height);
 }
 
 function addBall(x, y) {
