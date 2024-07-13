@@ -29,7 +29,7 @@ const square = {
 const bottomLeftSquare = {
     x: 0,
     y: 0, // Will be adjusted in resizeCanvas
-    width: 130*1.5,
+    width: 140*1.5,
     height: 120*1.5,
     color: 'red'
 };
@@ -57,7 +57,7 @@ class Ball {
     }
 
     draw() {
-        const size = this.radius * 2 * 2.3; // Increased size
+        const size = this.radius * 2 * 2.3*1.5; // Increased size
         ctx.drawImage(ballImage, this.x - size / 2, this.y - size / 2, size, size);
     }
 
