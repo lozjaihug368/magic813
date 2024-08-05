@@ -17,8 +17,11 @@ function resizeCanvas() {
 const balls = [];
 const gravity = 0.5;
 const friction = 0.9;
-const ballLifetime = 5000; // Ball lifetime in milliseconds
 
+// Ball lifetime in milliseconds
+const ballLifetime = 20000; 
+
+// Magic hat position
 const square = {
     x: 0, // Will be adjusted in resizeCanvas
     y: 0, // Will be adjusted in resizeCanvas
@@ -26,25 +29,33 @@ const square = {
     color: 'blue'
 };
 
+// Bottom-left square position
 const bottomLeftSquare = {
     x: 0,
     y: 0, // Will be adjusted in resizeCanvas
-    width: 140*1.5,
-    height: 120*1.5,
+    width: 140 * 1.5,
+    height: 120 * 1.5,
     color: 'red'
 };
 
 // Load the ball image
 const ballImage = new Image();
-ballImage.src = 'src/ball.png'; // Make sure to place the ball.png in the same directory
+ballImage.src = 'src/ball.png';
 
 // Load the person image
 const personImage = new Image();
-personImage.src = 'src/person.png'; // Make sure to place the person.png in the same directory
+personImage.src = 'src/person.png';
 
 // Load the magic hat image
 const magichatImage = new Image();
-magichatImage.src = 'src/magichat.png'; // Make sure to place the magichat.png in the same directory
+magichatImage.src = 'src/magichat.png';
+
+// Load the alert image
+const alertImage = new Image();
+alertImage.src = 'src/alert.png';
+
+let showAlert = false;
+let alertClosed = false;
 
 class Ball {
     constructor(x, y, radius) {
@@ -57,7 +68,7 @@ class Ball {
     }
 
     draw() {
-        const size = this.radius * 2 * 2.3*1.5; // Increased size
+        const size = this.radius * 2 * 2.3 * 1.5; // Increased size
         ctx.drawImage(ballImage, this.x - size / 2, this.y - size / 2, size, size);
     }
 
@@ -135,6 +146,13 @@ function drawBottomLeftSquare() {
     ctx.drawImage(personImage, bottomLeftSquare.x, bottomLeftSquare.y, bottomLeftSquare.width, bottomLeftSquare.height);
 }
 
+function drawAlert() {
+    const alertSize = 200;
+    const x = (canvas.width - alertSize) / 2;
+    const y = (canvas.height - alertSize) / 2;
+    ctx.drawImage(alertImage, x, y, alertSize, alertSize);
+}
+
 function addBall(x, y) {
     const radius = 20;
     balls.push(new Ball(x, y, radius));
@@ -150,12 +168,20 @@ function animate() {
     drawSquare();
     drawBottomLeftSquare();
     balls.forEach(ball => ball.update());
+    if (balls.length > 30 && !alertClosed) {
+        showAlert = true;
+        drawAlert();
+    } else {
+        showAlert = false;
+    }
 }
 
 canvas.addEventListener('click', (event) => {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
+    
+    // Check if click is within the square
     if (
         x > square.x &&
         x < square.x + square.size &&
@@ -163,6 +189,23 @@ canvas.addEventListener('click', (event) => {
         y < square.y + square.size
     ) {
         addBall(square.x + square.size / 2, square.y + square.size / 2);
+    }
+
+    // Check if click is on the alert image
+    if (showAlert) {
+        const alertSize = 500;
+        const alertX = (canvas.width - alertSize) / 2;
+        const alertY = (canvas.height - alertSize) / 2;
+
+        if (
+            x > alertX &&
+            x < alertX + alertSize - 300 &&
+            y > alertY &&
+            y < alertY + alertSize - 300
+        ) {
+            showAlert = false;
+            alertClosed = true;
+        }
     }
 });
 
