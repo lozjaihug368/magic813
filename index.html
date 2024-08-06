@@ -11,17 +11,63 @@
             overflow: hidden;
             width: 100%;
             height: 100%;
+            /* background-color: rgb(247, 255, 224); */
         }
         canvas {
             display: block;
         }
+        .buttons {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+        }
+        .buttons button {
+            margin: 2px;
+            padding: 10px;
+            background-color: white;
+            /* border: 2px solid black; */
+            border: 0px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+        }
+        .buttons img {
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
+    <div class="buttons">
+        <button id="backButton">
+            <img src="src/icon-chevron-left.png">
+        </button>
+        <button id="muteButton">
+            <img src="src/icon-volume-2.png">
+        </button>
+    </div>
     <canvas id="canvas"></canvas>
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+
+        const backButton = document.getElementById('backButton');
+        const muteButton = document.getElementById('muteButton');
+
+        let isMuted = false;
+
+        backButton.addEventListener('click', () => {
+            window.location.href = 'https://www.example.com'; // 替换为你要跳转的链接
+        });
+
+        muteButton.addEventListener('click', () => {
+            isMuted = !isMuted;
+            const muteIcon = muteButton.querySelector('img');
+            muteIcon.src = isMuted ? 'src/icon-volume-x.png' : 'src/icon-volume-2.png';
+        
+        });
 
         // Function to resize the canvas
         function resizeCanvas() {
@@ -30,7 +76,7 @@
 
             // 魔法帽子的位置
             square.x = (canvas.width - square.size) / 2;
-            square.y = (canvas.height - square.size) / 4;
+            square.y = (canvas.height - square.size) / 8;
 
             // 调整小高姐的位置
             bottomLeftSquare.y = canvas.height - bottomLeftSquare.height;
@@ -179,15 +225,16 @@
         }
 
         function addBall(x, y) {
-            const radius = 20;
-            balls.push(new Ball(x, y, radius));
+                const radius = 20;
+                balls.push(new Ball(x, y, radius));
 
-            // 随机播放穆勒的讲话
-            const randomSound = Math.random() < 0.5 ? 'src/ja.mp3' : 'src/toni.mp3';
-            const audio = new Audio(randomSound);
-            audio.play();
+            //  如果没有静音，随机播放穆勒的讲话
+            if (!isMuted) {
+                const randomSound = Math.random() < 0.5 ? 'src/ja.mp3' : 'src/toni.mp3';
+                const audio = new Audio(randomSound);
+                audio.play();
+            }
         }
-
         function init() {
             balls.length = 0; // Clear previous balls
         }
