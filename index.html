@@ -3,29 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAGIC813</title>
+    <title>Canvas Balls</title>
     <style>
-        body {
+        body, html {
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: #ddf1ab;
+            padding: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
         }
         canvas {
-            width:90%;
-            height:85%;
-            background: #fff;
-            
-            border-radius: 20px;
-            
+            display: block;
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas" width="800" height="600"></canvas>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
 
-    <script src="src/script.js"></script>
+        // Function to resize the canvas
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            // Center the square
+            square.x = (canvas.width - square.size) / 2;
+            square.y = (canvas.height - square.size) / 4;
+
+            // Adjust bottomLeftSquare position
+            bottomLeftSquare.y = canvas.height - bottomLeftSquare.height;
+        }
+
+        const balls = [];
+        const gravity = 0.5;
+        const friction = 0.9;
+
+        // 每个穆勒的生命 in milliseconds
+        const ballLifetime = 60000; 
+
+        // Magic hat position
+        const square = {
+            x: 0, // Will be adjusted in resizeCanvas
+            y: 0, // Will be adjusted in resizeCanvas
+            size: 100,
+            color: 'blue'
+        };
+
+        // Bottom-left square position
+        const bottomLeftSquare = {
+            x: 0,
+            y: 0, // Will be adjusted in resizeCanvas
+            width: 140 * 1.5,
+            height: 120 * 1.5,
+            color: 'red'
+        };
+
+        // Load the ball image
+        const ballImage = new Image();
+        ballImage.src = 'src/ball.png';
+
+        // Load the person image
+        const personImage = new Image();
+        personImage.src = 'src/person.png';
+
+        // Load the magic hat image
+        const magichatImage = new Image();
+        magichatImage.src = 'src/magichat.png';
+
+        // Load the alert image
+        const alertImage = new Image();
+        alertImage.src = 'src/alert.png';
+
+        let showAlert = false;
+        let alertClosed = false;
+
+        class Ball {
+            constructor(x, y, radius) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.dx = Math.random() * 10 - 5; // Random horizontal speed
+                this.dy = Math.random() * -15; // Random vertical speed (upwards)
+                this.createdTime = Date.now(); // Record creation time
+            }
+
+            draw() {
+                const size = this.radius * 2 * 2.3 * 1.5; // Increased size
+                ctx.drawImage(ballImage, this.x - size / 2, this.y - size / 2, size, size);
+            }
+
+            update() {
+                const currentTime = Date.now();
+                
+                // Remove ball if its lifetime has elapsed
+                if (currentTime - this.createdTime > ballLifetime) {
+                    balls.splice(balls.indexOf(this), 1);
+                    return;
+                }
+
+                // Check collision with bottom border
+                if (this.y + this.radius + this.dy > canvas.height) {
+                    this.dy = -this.dy * friction;
+                } else {
+                    this.dy += gravity;
+                }
+
+                // Check collision with side borders
+                if (this.x + this.radius + this.dx > canvas.width || this.x - this.radius + this.dx < 0) {
+                    this.dx = -this.dx * friction;
+                }
+
+                // Check collision with bottom-left square
+                if (this.x + this.radius > bottomLeftSquare.x &&
+                    this.x - this.radius < bottomLeftSquare.x + bottomLeftSquare.width &&
+                    this.y + this.radius > bottomLeftSquare.y &&
+                    this.y - this.radius < bottomLeftSquare.y + bottomLeftSquare.height) {
+
+                    // Determine which side the collision occurred
+                    const ballBottom = this.y + this.radius;
+                    const ballTop = this.y - this.radius;
+                    const ballLeft = this.x - this.radius;
+                    const ballRight = this.x + this.radius;
+
+                    const squareBottom = bottomLeftSquare.y + bottomLeftSquare.height;
+                    const squareTop = bottomLeftSquare.y;
+                    const squareLeft = bottomLeftSquare.x;
+                    const squareRight = bottomLeftSquare.x + bottomLeftSquare.width;
+
+                    const collideTop = ballBottom > squareTop && ballTop < squareTop;
+                    const collideBottom = ballTop < squareBottom && ballBottom > squareBottom;
+                    const collideLeft = ballRight > squareLeft && ballLeft < squareLeft;
+                    const collideRight = ballLeft < squareRight && ballRight > squareRight;
+
+                    if (collideTop) {
+                        this.dy = -this.dy * friction;
+                        this.y = squareTop - this.radius;
+                    } else if (collideBottom) {
+                        this.dy = -this.dy * friction;
+                        this.y = squareBottom + this.radius;
+                    } else if (collideLeft) {
+                        this.dx = -this.dx * friction;
+                        this.x = squareLeft - this.radius;
+                    } else if (collideRight) {
+                        this.dx = -this.dx * friction;
+                        this.x = squareRight + this.radius;
+                    }
+                }
+
+                this.x += this.dx;
+                this.y += this.dy;
+
+                this.draw();
+            }
+        }
+
+        function drawSquare() {
+            // Draw the magic hat image instead of a blue square
+            ctx.drawImage(magichatImage, square.x, square.y, square.size, square.size);
+        }
+
+        function drawBottomLeftSquare() {
+            ctx.drawImage(personImage, bottomLeftSquare.x, bottomLeftSquare.y, bottomLeftSquare.width, bottomLeftSquare.height);
+        }
+
+        function drawAlert() {
+            const alertSize = 300;
+            const x = (canvas.width - alertSize) / 2;
+            const y = (canvas.height - alertSize) / 2;
+            ctx.drawImage(alertImage, x, y, alertSize, alertSize);
+        }
+
+        function addBall(x, y) {
+            const radius = 20;
+            balls.push(new Ball(x, y, radius));
+
+            // Play a random sound
+            const randomSound = Math.random() < 0.5 ? 'src/ja.mp3' : 'src/toni.mp3';
+            const audio = new Audio(randomSound);
+            audio.play();
+        }
+
+        function init() {
+            balls.length = 0; // Clear previous balls
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawSquare();
+            drawBottomLeftSquare();
+            balls.forEach(ball => ball.update());
+            if (balls.length > 100 && !alertClosed) {
+                showAlert = true;
+                drawAlert();
+            } else {
+                showAlert = false;
+            }
+        }
+
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // Check if click is within the square
+            if (
+                x > square.x &&
+                x < square.x + square.size &&
+                y > square.y &&
+                y < square.y + square.size
+            ) {
+                addBall(square.x + square.size / 2, square.y + square.size / 2);
+            }
+
+            // Check if click is on the alert image
+            if (showAlert) {
+                const alertSize = 500;
+                const alertX = (canvas.width - alertSize) / 2;
+                const alertY = (canvas.height - alertSize) / 2;
+
+                if (
+                    x > alertX &&
+                    x < alertX + alertSize - 300 &&
+                    y > alertY &&
+                    y < alertY + alertSize - 300
+                ) {
+                    showAlert = false;
+                    alertClosed = true;
+                }
+            }
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        personImage.onload = () => {
+            init();
+            animate();
+        };
+    </script>
 </body>
 </html>
