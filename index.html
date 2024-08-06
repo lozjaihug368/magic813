@@ -277,14 +277,14 @@
         }
 
         function addBall(x, y) {
-            const radius = 20;
-            balls.push(new Ball(x, y, radius));
-
             if (!isMuted) {
                 const randomSound = Math.random() < 0.5 ? 'src/ja.mp3' : 'src/toni.mp3';
                 const audio = new Audio(randomSound);
                 audio.play();
             }
+            
+            const radius = 20;
+            balls.push(new Ball(x, y, radius));
         }
 
         function init() {
