@@ -32,6 +32,7 @@
             cursor: pointer;
             width: 50px;
             height: 50px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
         }
         .buttons img {
             width: 100%;
@@ -68,6 +69,26 @@
             muteIcon.src = isMuted ? 'src/icon-volume-x.png' : 'src/icon-volume-2.png';
         
         });
+
+        //预加载音频
+        const audioPool = {
+            ja: new Audio('src/ja.mp3'),
+            toni: new Audio('src/toni.mp3')
+        };
+
+        // Preload audio files
+        for (let key in audioPool) {
+            audioPool[key].load();
+        }
+
+        // Ensure audio plays only after user interaction
+        function playAudio(audio) {
+            if (!isMuted) {
+                audio.play().catch(error => {
+                    console.log("Audio playback failed: ", error);
+                });
+            }
+        }
 
         // Function to resize the canvas
         function resizeCanvas() {
@@ -146,26 +167,26 @@
             update() {
                 const currentTime = Date.now();
                 
-                // Remove ball if its lifetime has elapsed
+                // 
                 if (currentTime - this.createdTime > ballLifetime) {
                     balls.splice(balls.indexOf(this), 1);
                     return;
                 }
 
-                // Check collision with bottom border
+                // 下边框和穆勒的撞击
                 if (this.y + this.radius + this.dy > canvas.height) {
                     this.dy = -this.dy * friction;
                 } else {
                     this.dy += gravity;
                 }
 
-                // Check collision with side borders
+                // 两侧边框和穆勒的撞击
                 if (this.x + this.radius + this.dx > canvas.width || this.x - this.radius + this.dx < 0) {
                     this.dx = -this.dx * friction;
                 }
 
-                // Check collision with bottom-left square
-                if (this.x + this.radius > bottomLeftSquare.x &&
+                // 小高姐和穆勒的撞击
+                if(
                     this.x - this.radius < bottomLeftSquare.x + bottomLeftSquare.width &&
                     this.y + this.radius > bottomLeftSquare.y &&
                     this.y - this.radius < bottomLeftSquare.y + bottomLeftSquare.height) {
@@ -228,12 +249,12 @@
                 const radius = 20;
                 balls.push(new Ball(x, y, radius));
 
-            //  如果没有静音，随机播放穆勒的讲话
+            /* //  如果没有静音，随机播放穆勒的讲话
             if (!isMuted) {
-                const randomSound = Math.random() < 0.5 ? 'src/ja.mp3' : 'src/toni.mp3';
+                const randomSound = Math.random() < 0.5 ? audioPool.ja : audioPool.toni;
                 const audio = new Audio(randomSound);
                 audio.play();
-            }
+            } */
         }
         function init() {
             balls.length = 0; // Clear previous balls
@@ -267,6 +288,9 @@
                 y < square.y + square.size
             ) {
                 addBall(square.x + square.size / 2, square.y + square.size / 2);
+
+                const randomSound = Math.random() < 0.5 ? audioPool.ja : audioPool.toni;
+                playAudio(randomSound);
             }
 
             // 点击弹窗中的固定位置关闭弹窗的功能
