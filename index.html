@@ -69,7 +69,7 @@
             muteIcon.src = isMuted ? 'src/icon-volume-x.png' : 'src/icon-volume-2.png';
         
         });
-
+/* 
         //预加载音频
         const audioPool = {
             ja: new Audio('src/ja.mp3'),
@@ -88,7 +88,7 @@
                     console.log("Audio playback failed: ", error);
                 });
             }
-        }
+        } */
 
         // Function to resize the canvas
         function resizeCanvas() {
@@ -249,9 +249,9 @@
                 const radius = 20;
                 balls.push(new Ball(x, y, radius));
 
-            /* //  如果没有静音，随机播放穆勒的讲话
-            if (!isMuted) {
-                const randomSound = Math.random() < 0.5 ? audioPool.ja : audioPool.toni;
+            //  如果没有静音，随机播放穆勒的讲话
+            /* if (!isMuted) {
+                const randomSound = Math.random() < 0.5 ? 'src/ja.mp3': 'src/toni.mp3';
                 const audio = new Audio(randomSound);
                 audio.play();
             } */
@@ -289,8 +289,13 @@
             ) {
                 addBall(square.x + square.size / 2, square.y + square.size / 2);
 
-                const randomSound = Math.random() < 0.5 ? audioPool.ja : audioPool.toni;
-                playAudio(randomSound);
+                /* const randomSound = Math.random() < 0.5 ? audioPool.ja : audioPool.toni;
+                playAudio(randomSound); */
+                if (!isMuted) {
+                const randomSound = Math.random() < 0.5 ? 'src/ja.mp3': 'src/toni.mp3';
+                const audio = new Audio(randomSound);
+                audio.play();
+            }
             }
 
             // 点击弹窗中的固定位置关闭弹窗的功能
