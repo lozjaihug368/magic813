@@ -132,6 +132,8 @@
         // 穆勒image
         const ballImage = new Image();
         ballImage.src = 'src/ball.png';
+        const ballMutedImage = new Image();
+        ballMutedImage.src = 'src/ball-muted.png';
 
         // 小高姐image
         const personImage = new Image();
@@ -161,7 +163,14 @@
 
             draw() {
                 const size = this.radius * 2 * 2.3 * 1.5; // Increased size
+                if(!isMuted)
+            {
                 ctx.drawImage(ballImage, this.x - size / 2, this.y - size / 2, size, size);
+            }else
+            {
+                ctx.drawImage(ballMutedImage, this.x - size / 2, this.y - size / 2, size, size);
+            }
+                
             }
 
             update() {
