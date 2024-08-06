@@ -11,7 +11,6 @@
             overflow: hidden;
             width: 100%;
             height: 100%;
-            /* background-color: rgb(247, 255, 224); */
         }
         canvas {
             display: block;
@@ -26,7 +25,6 @@
             margin: 2px;
             padding: 10px;
             background-color: white;
-            /* border: 2px solid black; */
             border: 0px;
             border-radius: 8px;
             cursor: pointer;
@@ -37,6 +35,47 @@
         .buttons img {
             width: 100%;
             height: 100%;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center; 
+            justify-content: center;
+            z-index: 5;
+        }
+        #alertContainer {
+            
+            width:70%;
+            margin:auto;
+            position: absolute;
+	        top: 26%;
+	        left: 0;
+	        right: 0;
+	        bottom: 0;
+            /* background-color: red; */
+        }
+        #alertImage {
+            width: 100%;
+        }
+        .close-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            text-align: center;
+            line-height: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            color: black;
         }
     </style>
 </head>
@@ -49,6 +88,12 @@
             <img src="src/icon-volume-2.png">
         </button>
     </div>
+    <div class="overlay" id="overlay">
+        <div id="alertContainer">
+            <img src="src/alert.png" id="alertImage">
+            <div class="close-button" id="closeButton">&times;</div>
+        </div>
+    </div>
     <canvas id="canvas"></canvas>
     <script>
         const canvas = document.getElementById('canvas');
@@ -56,8 +101,15 @@
 
         const backButton = document.getElementById('backButton');
         const muteButton = document.getElementById('muteButton');
+        const overlay = document.getElementById('overlay');
+        const alertImage = document.getElementById('alertImage');
+        const closeButton = document.getElementById('closeButton');
 
         let isMuted = false;
+
+        // 预加载 alert.png
+        const preloadAlertImage = new Image();
+        preloadAlertImage.src = 'src/alert.png';
 
         backButton.addEventListener('click', () => {
             window.location.href = 'https://www.example.com'; // 替换为你要跳转的链接
@@ -67,28 +119,7 @@
             isMuted = !isMuted;
             const muteIcon = muteButton.querySelector('img');
             muteIcon.src = isMuted ? 'src/icon-volume-x.png' : 'src/icon-volume-2.png';
-        
         });
-/* 
-        //预加载音频
-        const audioPool = {
-            ja: new Audio('src/ja.mp3'),
-            toni: new Audio('src/toni.mp3')
-        };
-
-        // Preload audio files
-        for (let key in audioPool) {
-            audioPool[key].load();
-        }
-
-        // Ensure audio plays only after user interaction
-        function playAudio(audio) {
-            if (!isMuted) {
-                audio.play().catch(error => {
-                    console.log("Audio playback failed: ", error);
-                });
-            }
-        } */
 
         // Function to resize the canvas
         function resizeCanvas() {
@@ -141,12 +172,7 @@
 
         // 魔法帽image
         const magichatImage = new Image();
-        //TODO：增加随机选项 
         magichatImage.src = 'src/magichat.png';
-
-        // 弹窗image
-        const alertImage = new Image();
-        alertImage.src = 'src/alert.png';
 
         let showAlert = false;
         let alertClosed = false;
@@ -163,20 +189,13 @@
 
             draw() {
                 const size = this.radius * 2 * 2.3 * 1.5; // Increased size
-                if(!isMuted)
-            {
-                ctx.drawImage(ballImage, this.x - size / 2, this.y - size / 2, size, size);
-            }else
-            {
-                ctx.drawImage(ballMutedImage, this.x - size / 2, this.y - size / 2, size, size);
-            }
-                
+                ctx.drawImage(isMuted ? ballMutedImage : ballImage, this.x - size / 2, this.y - size / 2, size, size);
             }
 
             update() {
                 const currentTime = Date.now();
                 
-                // 
+                // 穆勒的生命
                 if (currentTime - this.createdTime > ballLifetime) {
                     balls.splice(balls.indexOf(this), 1);
                     return;
@@ -195,12 +214,12 @@
                 }
 
                 // 小高姐和穆勒的撞击
-                if(
+                if (
+                    this.x + this.radius > bottomLeftSquare.x &&
                     this.x - this.radius < bottomLeftSquare.x + bottomLeftSquare.width &&
                     this.y + this.radius > bottomLeftSquare.y &&
                     this.y - this.radius < bottomLeftSquare.y + bottomLeftSquare.height) {
 
-                    // Determine which side the collision occurred
                     const ballBottom = this.y + this.radius;
                     const ballTop = this.y - this.radius;
                     const ballLeft = this.x - this.radius;
@@ -239,7 +258,6 @@
         }
 
         function drawSquare() {
-            // Draw the magic hat image instead of a blue square
             ctx.drawImage(magichatImage, square.x, square.y, square.size, square.size);
         }
 
@@ -248,23 +266,26 @@
         }
 
         function drawAlert() {
-            const alertSize = 300;
-            const x = (canvas.width - alertSize) / 2;
-            const y = (canvas.height - alertSize) / 2;
-            ctx.drawImage(alertImage, x, y, alertSize, alertSize);
+            overlay.style.display = 'flex';
+        }
+
+        function hideAlert() {
+            overlay.style.display = 'none';
+            showAlert = false;
+            alertClosed = true;
         }
 
         function addBall(x, y) {
-                const radius = 20;
-                balls.push(new Ball(x, y, radius));
+            const radius = 20;
+            balls.push(new Ball(x, y, radius));
 
-            //  如果没有静音，随机播放穆勒的讲话
-            /* if (!isMuted) {
-                const randomSound = Math.random() < 0.5 ? 'src/ja.mp3': 'src/toni.mp3';
+            if (!isMuted) {
+                const randomSound = Math.random() < 0.5 ? 'src/ja.mp3' : 'src/toni.mp3';
                 const audio = new Audio(randomSound);
                 audio.play();
-            } */
+            }
         }
+
         function init() {
             balls.length = 0; // Clear previous balls
         }
@@ -275,12 +296,9 @@
             drawSquare();
             drawBottomLeftSquare();
             balls.forEach(ball => ball.update());
-            //弹窗阀值
             if (balls.length > 30 && !alertClosed) {
                 showAlert = true;
                 drawAlert();
-            } else {
-                showAlert = false;
             }
         }
 
@@ -289,7 +307,6 @@
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
             
-            // Check if click is within the square
             if (
                 x > square.x &&
                 x < square.x + square.size &&
@@ -297,33 +314,10 @@
                 y < square.y + square.size
             ) {
                 addBall(square.x + square.size / 2, square.y + square.size / 2);
-
-                /* const randomSound = Math.random() < 0.5 ? audioPool.ja : audioPool.toni;
-                playAudio(randomSound); */
-                if (!isMuted) {
-                const randomSound = Math.random() < 0.5 ? 'src/ja.mp3': 'src/toni.mp3';
-                const audio = new Audio(randomSound);
-                audio.play();
-            }
-            }
-
-            // 点击弹窗中的固定位置关闭弹窗的功能
-            if (showAlert) {
-                const alertSize = 300;
-                const alertX = (canvas.width - alertSize) / 2;
-                const alertY = (canvas.height - alertSize) / 2;
-
-                if (
-                    x > alertX &&
-                    x < alertX + alertSize - 200 &&
-                    y > alertY &&
-                    y < alertY + alertSize - 200
-                ) {
-                    showAlert = false;
-                    alertClosed = true;
-                }
             }
         });
+
+        closeButton.addEventListener('click', hideAlert);
 
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
